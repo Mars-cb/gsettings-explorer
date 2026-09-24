@@ -1,7 +1,7 @@
 'use strict'
 
 const $ = id => document.getElementById(id)
-const state = { items: [], schemas: [], selectedSchema: null, selectedItem: null, target: { kind: 'local' }, watchItem: null, loading: false }
+const state = { items: [], schemas: [], selectedSchema: null, selectedItem: null, target: { kind: 'local' }, watchItem: null, loading: false, logEvents: [] }
 
 function element(tag, className, text) {
   const node = document.createElement(tag)
@@ -180,7 +180,7 @@ async function startWatch(item) {
     }
     state.watchItem = item
     $('monitor-target').textContent = `${item.schema} / ${item.key}${item.path === null ? ' · ' + instancePath : ''}`
-    $('monitor-log').replaceChildren(element('div', 'log-placeholder', '监听已启动，等待变化…'))
+    if (!state.logEvents.length) $('monitor-log').replaceChildren(element('div', 'log-placeholder', '监听已启动，等待变化…'))
     setMonitorState('连接中', 'idle')
     renderDetail()
     await window.gsettingsApi.startWatch({ target: state.target, schema: item.schema, key: item.key, path: instancePath })
@@ -209,6 +209,13 @@ async function stopWatch() {
 }
 
 function appendChange(event) {
+  const remoteLabel = state.target.kind === 'local'
+    ? '本机'
+    : `${state.target.user ? state.target.user + '@' : ''}${state.target.host}:${state.target.port}`
+  const savedEvent = { ...event, target: remoteLabel }
+  state.logEvents.push(savedEvent)
+  $('event-count').textContent = String(state.logEvents.length)
+  $('export-log').disabled = state.logEvents.length === 0
   const log = $('monitor-log')
   if (log.querySelector('.log-placeholder')) log.replaceChildren()
   const row = element('div', 'log-event')
@@ -224,6 +231,31 @@ function appendChange(event) {
   row.append(element('div', 'modifier', `前值观测：${formatTime(event.previousObservedAt)} · 新值观测：${formatTime(event.observedAt)}`))
   log.prepend(row)
   while (log.children.length > 100) log.lastChild.remove()
+}
+
+async function initializeExportDirectory() {
+  try { $('export-dir').value = await window.gsettingsApi.getExportDirectory() }
+  catch (error) { $('export-status').textContent = error.message || String(error) }
+}
+
+async function chooseExportDirectory() {
+  try {
+    const selected = await window.gsettingsApi.chooseExportDirectory($('export-dir').value.trim())
+    if (selected) $('export-dir').value = selected
+  } catch (error) { $('export-status').textContent = error.message || String(error) }
+}
+
+async function exportLog() {
+  $('export-status').textContent = ''
+  if (!state.logEvents.length) return
+  try {
+    const result = await window.gsettingsApi.exportLog({
+      directory: $('export-dir').value.trim(), events: state.logEvents
+    })
+    $('export-status').textContent = `已导出 ${result.eventCount} 条：${result.filePath}`
+  } catch (error) {
+    $('export-status').textContent = error.message || String(error)
+  }
 }
 
 window.gsettingsApi.onWatchEvent(event => {
@@ -246,6 +278,8 @@ document.querySelectorAll('input[name="mode"]').forEach(input => input.addEventL
   $('ssh-fields').classList.toggle('hidden', document.querySelector('input[name="mode"]:checked').value === 'local')
 }))
 $('connect').addEventListener('click', loadSnapshot)
+$('choose-export-dir').addEventListener('click', chooseExportDirectory)
+$('export-log').addEventListener('click', exportLog)
 $('search').addEventListener('input', () => { $('settings-list').scrollTop = 0; renderItems() })
 $('settings-list').addEventListener('scroll', () => {
   if (state.items.length <= 100 || state.listRenderQueued) return
@@ -257,3 +291,5 @@ document.addEventListener('keydown', event => {
     event.preventDefault(); $('search').focus()
   }
 })
+
+initializeExportDirectory()

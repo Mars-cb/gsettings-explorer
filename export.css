@@ -1,0 +1,6 @@
+.export-controls{display:grid;grid-template-columns:minmax(0,1fr) 58px auto;gap:7px;align-items:center;padding:10px 16px 6px;flex:none}
+.export-controls input{min-width:0;width:100%;height:32px;border:1px solid #dce4ef;border-radius:6px;padding:6px 8px;color:#52647d;background:#fff;font:11px ui-monospace,monospace;outline:none}
+.export-controls input:focus{border-color:#7ea8ed;box-shadow:0 0 0 2px #d8e8ff}
+.export-controls .secondary{padding:7px 8px;white-space:nowrap}
+.export-controls button:disabled{opacity:.45;cursor:default}
+.export-status{padding:0 18px 7px;color:#74879f;font-size:10px;line-height:1.35;overflow-wrap:anywhere;flex:none}

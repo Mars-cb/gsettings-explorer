@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="password.css">
   <link rel="stylesheet" href="scroll-layout.css">
+  <link rel="stylesheet" href="export.css">
 </head>
 <body>
   <div class="shell">
@@ -37,7 +38,7 @@
       <section class="content-grid">
         <div class="catalog panel"><div class="panel-head"><div><h2 id="catalog-title">所有配置</h2><p id="catalog-subtitle">选择 schema 或输入关键词</p></div></div><div class="table-head"><span>SCHEMA / KEY</span><span>当前值</span></div><div id="settings-list" class="settings-list"><div class="empty-state"><div class="empty-icon">⌘</div><strong>准备浏览配置</strong><p>点击左侧“加载配置”开始。</p></div></div></div>
         <div class="right-column"><section class="detail panel"><div class="panel-head"><div><h2>键详情</h2><p>选择一个配置项查看信息</p></div></div><div id="detail-content" class="detail-content"><div class="detail-placeholder">选择左侧列表中的键</div></div></section>
-        <section class="monitor panel"><div class="panel-head monitor-head"><div><h2>变化监听</h2><p>记录监听开始后的变化</p></div><span id="monitor-state" class="state idle">未监听</span></div><div id="monitor-target" class="monitor-target">选择配置项后开始监听</div><div id="monitor-log" class="monitor-log"><div class="log-placeholder">暂无变化记录</div></div></section></div>
+        <section class="monitor panel"><div class="panel-head monitor-head"><div><h2>变化监听</h2><p>记录监听开始后的变化</p></div><span id="monitor-state" class="state idle">未监听</span></div><div id="monitor-target" class="monitor-target">选择配置项后开始监听</div><div class="export-controls"><input id="export-dir" type="text" aria-label="日志保存目录" title="可直接编辑保存目录"><button id="choose-export-dir" class="secondary" type="button">浏览</button><button id="export-log" class="secondary" type="button" disabled>导出日志 <span id="event-count">0</span></button></div><div id="export-status" class="export-status" aria-live="polite"></div><div id="monitor-log" class="monitor-log"><div class="log-placeholder">暂无变化记录</div></div></section></div>
       </section>
     </main>
   </div>

@@ -1,6 +1,6 @@
 'use strict'
 
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, dialog, ipcMain } = require('electron')
 const { spawn } = require('child_process')
 const fs = require('fs')
 const os = require('os')
@@ -9,6 +9,14 @@ const path = require('path')
 const helperPath = path.join(__dirname, 'helper.py').replace('app.asar/', 'app.asar.unpacked/')
 let windowRef = null
 let activeWatch = null
+
+function appDirectory() {
+  if (process.env.APPIMAGE && path.isAbsolute(process.env.APPIMAGE)) {
+    return path.dirname(process.env.APPIMAGE)
+  }
+  const appPath = app.getAppPath()
+  return app.isPackaged ? path.dirname(path.dirname(appPath)) : appPath
+}
 
 function validateTarget(target) {
   if (!target || target.kind === 'local') return { kind: 'local' }
@@ -188,6 +196,42 @@ ipcMain.handle('watch-start', (event, input) => {
 })
 
 ipcMain.handle('watch-stop', event => { trusted(event); stopWatch(); return true })
+
+ipcMain.handle('export-default-dir', event => { trusted(event); return appDirectory() })
+
+ipcMain.handle('choose-export-dir', async (event, currentPath) => {
+  trusted(event)
+  const defaultPath = typeof currentPath === 'string' && path.isAbsolute(currentPath)
+    ? currentPath : appDirectory()
+  const result = await dialog.showOpenDialog(windowRef, {
+    title: '选择日志保存目录', defaultPath, properties: ['openDirectory']
+  })
+  return result.canceled ? null : result.filePaths[0]
+})
+
+ipcMain.handle('export-log', async (event, payload) => {
+  trusted(event)
+  if (!payload || typeof payload.directory !== 'string' || !path.isAbsolute(payload.directory)) {
+    throw new Error('请选择有效的绝对路径')
+  }
+  if (!Array.isArray(payload.events) || payload.events.length === 0 || payload.events.length > 100000) {
+    throw new Error('没有可导出的变化记录')
+  }
+  const directory = path.resolve(payload.directory)
+  await fs.promises.mkdir(directory, { recursive: true })
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-')
+  const filePath = path.join(directory, `gsettings-changes-${stamp}.json`)
+  const document = {
+    app: 'GSettings Explorer',
+    exportedAt: new Date().toISOString(),
+    eventCount: payload.events.length,
+    events: payload.events
+  }
+  await fs.promises.writeFile(filePath, JSON.stringify(document, null, 2), {
+    encoding: 'utf8', flag: 'wx', mode: 0o600
+  })
+  return { filePath, eventCount: payload.events.length }
+})
 
 app.whenReady().then(createWindow)
 app.on('window-all-closed', () => { stopWatch(); if (process.platform !== 'darwin') app.quit() })
