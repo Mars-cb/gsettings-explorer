@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'">
+  <title>GSettings Explorer</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="password.css">
+  <link rel="stylesheet" href="scroll-layout.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">G</span><div><strong>GSettings</strong><small>Explorer</small></div></div>
+      <div class="side-section-label">连接</div>
+      <div class="connection-card">
+        <div class="choice-row"><label><input type="radio" name="mode" value="local" checked> 本机</label><label><input type="radio" name="mode" value="ssh"> SSH 远程</label></div>
+        <div id="ssh-fields" class="ssh-fields hidden">
+          <label>主机 / SSH 别名<input id="host" type="text" placeholder="192.168.1.20 或 my-server" autocomplete="off"></label>
+          <div class="field-pair"><label>用户<input id="user" type="text" placeholder="可选" autocomplete="off"></label><label>端口<input id="port" type="number" min="1" max="65535" value="22"></label></div>
+          <label>SSH 密码<input id="password" type="password" placeholder="密钥登录可留空" autocomplete="new-password"></label>
+          <div class="password-note">密码只保留在本次运行内，不会写入磁盘。</div>
+        </div>
+        <button id="connect" class="primary full">加载配置</button>
+        <div id="connection-status" class="connection-status">尚未加载</div>
+      </div>
+      <div class="side-heading"><span>SCHEMAS</span><span id="schema-count" class="pill">0</span></div>
+      <div id="schema-list" class="schema-list"><div class="empty-side">加载后显示 schema</div></div>
+      <div class="sidebar-footer">只读浏览 · 监听当前用户的配置</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar"><div><div class="eyebrow">CONFIGURATION INSPECTOR</div><h1>配置浏览器</h1><p>搜索本机或远程机器的 GSettings 配置，跟踪指定键的变化。</p></div><div id="host-badge" class="host-badge">● 本机</div></header>
+      <div class="toolbar"><div class="search-wrap"><span class="search-icon">⌕</span><input id="search" type="search" placeholder="搜索 schema、键、值或说明…" autocomplete="off"><kbd>Ctrl K</kbd></div><span id="result-count" class="result-count">等待加载</span></div>
+      <div id="error-banner" class="error-banner hidden"></div>
+      <section class="content-grid">
+        <div class="catalog panel"><div class="panel-head"><div><h2 id="catalog-title">所有配置</h2><p id="catalog-subtitle">选择 schema 或输入关键词</p></div></div><div class="table-head"><span>SCHEMA / KEY</span><span>当前值</span></div><div id="settings-list" class="settings-list"><div class="empty-state"><div class="empty-icon">⌘</div><strong>准备浏览配置</strong><p>点击左侧“加载配置”开始。</p></div></div></div>
+        <div class="right-column"><section class="detail panel"><div class="panel-head"><div><h2>键详情</h2><p>选择一个配置项查看信息</p></div></div><div id="detail-content" class="detail-content"><div class="detail-placeholder">选择左侧列表中的键</div></div></section>
+        <section class="monitor panel"><div class="panel-head monitor-head"><div><h2>变化监听</h2><p>记录监听开始后的变化</p></div><span id="monitor-state" class="state idle">未监听</span></div><div id="monitor-target" class="monitor-target">选择配置项后开始监听</div><div id="monitor-log" class="monitor-log"><div class="log-placeholder">暂无变化记录</div></div></section></div>
+      </section>
+    </main>
+  </div>
+  <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+html,body{height:100%;overflow:hidden}
+.shell{height:100vh;min-height:650px;overflow:hidden}
+.sidebar{height:100vh;overflow:hidden}
+.schema-list{min-height:0}
+.main{height:100vh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.topbar,.toolbar{flex:none}
+.content-grid{flex:1;min-height:0;overflow:hidden;align-items:stretch}
+.catalog{display:flex;flex-direction:column;min-height:0}
+.settings-list{flex:1;min-height:0;max-height:none}
+.right-column{min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:18px;padding-right:4px}
+.detail,.monitor{min-height:0;display:flex;flex-direction:column}
+.detail{flex:0 0 46%}
+.detail-content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.monitor{flex:1 1 54%}
+.monitor-target{flex:none}
+.monitor-log{flex:1;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior:contain}
+.virtual-spacer{display:block;width:1px;flex:none;pointer-events:none}
+.setting-row{height:64px;min-height:64px}
+@media(max-height:720px){.main{padding-top:22px;padding-bottom:18px}.topbar{margin-bottom:18px}.panel-head{padding-top:15px;padding-bottom:14px}.detail-content{padding-top:15px;padding-bottom:15px}}

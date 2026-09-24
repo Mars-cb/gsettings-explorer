@@ -1,0 +1,31 @@
+{
+  "name": "gsettings-explorer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local and SSH GSettings explorer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check main.js && node --check preload.js && node --check renderer.js && python3 -m py_compile helper.py",
+    "build": "electron-builder --linux AppImage"
+  },
+  "devDependencies": {
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "org.example.gsettings-explorer",
+    "productName": "GSettings Explorer",
+    "asar": true,
+    "asarUnpack": ["helper.py"],
+    "files": ["main.js", "preload.js", "renderer.js", "index.html", "styles.css", "password.css", "scroll-layout.css", "helper.py", "assets/**/*", "package.json"],
+    "linux": {
+      "icon": "assets/icon.png",
+      "category": "Utility",
+      "target": ["AppImage"]
+    },
+    "directories": {
+      "output": "release"
+    }
+  }
+}
