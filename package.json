@@ -18,7 +18,7 @@
     "productName": "GSettings Explorer",
     "asar": true,
     "asarUnpack": ["helper.py"],
-    "files": ["main.js", "preload.js", "renderer.js", "index.html", "styles.css", "password.css", "scroll-layout.css", "export.css", "helper.py", "assets/**/*", "package.json"],
+    "files": ["main.js", "preload.js", "renderer.js", "index.html", "styles.css", "password.css", "scroll-layout.css", "export.css", "edit.css", "helper.py", "assets/**/*", "package.json"],
     "linux": {
       "icon": "assets/icon.png",
       "category": "Utility",

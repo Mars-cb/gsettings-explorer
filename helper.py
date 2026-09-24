@@ -95,6 +95,28 @@ def inspect_key(schema_id, key, path):
           'capturedAt': now()})
 
 
+def set_key(schema_id, key, path, raw_value):
+    settings, schema = settings_for(schema_id, path)
+    if key not in schema.list_keys():
+        raise ValueError('找不到配置键: ' + key)
+    key_schema = schema.get_key(key)
+    value_type = key_schema.get_value_type()
+    if not settings.is_writable(key):
+        raise ValueError('此配置项当前不可写')
+    try:
+        value = GLib.Variant.parse(value_type, raw_value, None, None)
+    except GLib.Error as exc:
+        raise ValueError('值格式无效；该键需要 GVariant 类型 ' + value_type.dup_string()) from exc
+    if not key_schema.range_check(value):
+        raise ValueError('此值不在 schema 允许的取值范围内')
+    if not settings.set_value(key, value):
+        raise ValueError('GSettings 拒绝了该值，配置没有修改')
+    emit({'type': 'set', 'schema': schema_id, 'key': key,
+          'path': schema.get_path() or path,
+          'value': settings.get_value(key).print_(True),
+          'writable': settings.is_writable(key), 'userValue': True})
+
+
 class WriterObserver:
     """Optional, approximate dconf D-Bus writer attribution."""
 
@@ -204,6 +226,8 @@ if __name__ == '__main__':
             snapshot()
         elif len(sys.argv) == 5 and sys.argv[1] == 'key':
             inspect_key(sys.argv[2], sys.argv[3], sys.argv[4])
+        elif len(sys.argv) == 6 and sys.argv[1] == 'set':
+            set_key(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
         elif len(sys.argv) == 5 and sys.argv[1] == 'watch':
             watch(sys.argv[2], sys.argv[3], sys.argv[4])
         else:

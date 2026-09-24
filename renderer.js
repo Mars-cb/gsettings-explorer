@@ -134,6 +134,30 @@ function renderDetail() {
   if (item.summary) field(grid, '摘要', item.summary)
   if (item.description) field(grid, '说明', item.description)
   container.append(grid)
+  const editor = element('div', 'setting-editor')
+  const editorLabel = element('label', '', '修改值（GVariant 格式）')
+  editorLabel.htmlFor = 'setting-value-input'
+  const valueInput = element('textarea', '', item.editedValue !== undefined ? item.editedValue : (item.value || ''))
+  valueInput.id = 'setting-value-input'
+  valueInput.rows = 2
+  valueInput.spellcheck = false
+  valueInput.placeholder = item.type === 's' ? "'文本'" : (item.type === 'b' ? 'true / false' : '输入符合类型的值')
+  valueInput.disabled = item.writable === false || item.value === null
+  valueInput.addEventListener('input', () => { item.editedValue = valueInput.value })
+  editor.append(editorLabel, valueInput)
+  const applyButton = element('button', 'secondary', '应用修改')
+  applyButton.type = 'button'
+  applyButton.disabled = valueInput.disabled
+  applyButton.addEventListener('click', () => setKey(item))
+  const editNote = element('span', 'detail-note', item.writable === false
+    ? '此键不可写' : (item.value === null ? '可重定位 schema 请先填写路径并读取' : '写入前会按 schema 检查值'))
+  const editActions = element('div', 'detail-actions')
+  editActions.append(applyButton, editNote)
+  editor.append(editActions)
+  const editStatus = element('div', 'edit-status', '')
+  editStatus.id = 'setting-status'
+  editor.append(editStatus)
+  container.append(editor)
   const actions = element('div', 'detail-actions')
   const button = element('button', 'secondary', state.watchItem === item ? '停止监听' : '监听此键')
   button.addEventListener('click', () => state.watchItem === item ? stopWatch() : startWatch(item))
@@ -199,6 +223,25 @@ async function readKey(item) {
     item.userValue = result.userValue
     renderItems(); renderDetail()
   } catch (error) { setError(error.message || String(error)) }
+}
+
+async function setKey(item) {
+  setError('')
+  const value = item.editedValue !== undefined ? item.editedValue : item.value
+  try {
+    const result = await window.gsettingsApi.setKey({
+      target: state.target, schema: item.schema, key: item.key,
+      path: item.path || item.instancePath || '', value
+    })
+    item.value = result.value
+    item.writable = result.writable
+    item.userValue = result.userValue
+    delete item.editedValue
+    renderItems(); renderDetail()
+    $('setting-status').textContent = '配置已修改。监听中的键会记录此次变化。'
+  } catch (error) {
+    setError(error.message || String(error))
+  }
 }
 
 async function stopWatch() {

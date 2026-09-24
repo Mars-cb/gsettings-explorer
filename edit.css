@@ -1,0 +1,7 @@
+.setting-editor{margin-top:17px;padding-top:14px;border-top:1px solid #edf1f5}
+.setting-editor>label{display:block;margin-bottom:7px;color:#8594a8;font-size:11px}
+.setting-editor textarea{display:block;width:100%;resize:vertical;min-height:54px;max-height:150px;border:1px solid #dce4ef;border-radius:7px;background:#fbfcfe;color:#354b68;padding:9px 10px;font:12px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}
+.setting-editor textarea:focus{border-color:#7ea8ed;box-shadow:0 0 0 2px #d8e8ff}
+.setting-editor textarea:disabled{background:#f2f4f7;color:#9aa6b6}
+.setting-editor .secondary:disabled{opacity:.45;cursor:default}
+.edit-status{min-height:16px;margin-top:5px;color:#218361;font-size:10px;line-height:1.35}

@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 contextBridge.exposeInMainWorld('gsettingsApi', {
   snapshot: target => ipcRenderer.invoke('snapshot', target),
   readKey: request => ipcRenderer.invoke('read-key', request),
+  setKey: request => ipcRenderer.invoke('set-key', request),
   startWatch: request => ipcRenderer.invoke('watch-start', request),
   stopWatch: () => ipcRenderer.invoke('watch-stop'),
   getExportDirectory: () => ipcRenderer.invoke('export-default-dir'),

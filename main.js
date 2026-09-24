@@ -174,6 +174,45 @@ ipcMain.handle('read-key', (event, input) => {
   })
 })
 
+ipcMain.handle('set-key', async (event, input) => {
+  trusted(event)
+  const target = validateTarget(input.target)
+  const schema = validName(input.schema, 'schema')
+  const key = validName(input.key, 'key')
+  const settingPath = validPath(input.path || '')
+  if (typeof input.value !== 'string' || !input.value.trim() || input.value.length > 8192) {
+    const message = '请输入有效的 GVariant 值'
+    if (windowRef && !windowRef.isDestroyed()) {
+      await dialog.showMessageBox(windowRef, {
+        type: 'error', title: '配置修改失败', message, detail: '输入不能为空且长度不能超过 8192 个字符'
+      })
+    }
+    throw new Error(message)
+  }
+  return new Promise((resolve, reject) => {
+    let result = null
+    let error = null
+    const child = startHelper(target, 'set', [schema, key, settingPath, input.value], message => {
+      if (message.type === 'set') result = message
+      if (message.type === 'error') error = message.message
+    }, async exitError => {
+      clearTimeout(timer)
+      const failure = error || exitError
+      if (failure) {
+        if (windowRef && !windowRef.isDestroyed()) {
+          await dialog.showMessageBox(windowRef, {
+            type: 'error', title: '配置修改失败',
+            message: '无法应用这个配置值', detail: failure
+          })
+        }
+        reject(new Error(failure))
+      } else if (result) resolve(result)
+      else reject(new Error('没有收到写入结果'))
+    })
+    const timer = setTimeout(() => child.kill(), 20000)
+  })
+})
+
 ipcMain.handle('watch-start', (event, input) => {
   trusted(event)
   const target = validateTarget(input.target)

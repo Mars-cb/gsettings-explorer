@@ -1,6 +1,6 @@
 # GSettings Explorer
 
-一个 Electron 桌面程序，用于浏览本机或 SSH 目标当前用户的 GSettings schema 和键，按 schema、键、值、说明搜索，并监听单个键的变化。可把本次运行期间收集的变更记录导出为 JSON；默认保存到 AppImage 所在目录，也可编辑路径或使用目录选择器更改。程序没有常驻服务；远程查询通过 SSH 临时运行内置的只读 helper。
+一个 Electron 桌面程序，用于浏览本机或 SSH 目标当前用户的 GSettings schema 和键，按 schema、键、值、说明搜索，按 GVariant 格式修改可写键，并监听单个键的变化。修改前会按 schema 检查类型、范围及可写状态；非法值会弹窗提示。可把本次运行期间收集的变更记录导出为 JSON；默认保存到 AppImage 所在目录，也可编辑路径或使用目录选择器更改。程序没有常驻服务；远程操作通过 SSH 临时运行内置 helper。
 
 ## 运行与构建
 
